@@ -20,6 +20,7 @@ class UserRightsRout {
                 res.send(data);
             }, err => {
                 console.error(err);
+                res.status(500);
                 res.send({err, "ok": false});
             });
         });
@@ -29,6 +30,7 @@ class UserRightsRout {
                 res.send({data, "ok": true});
             }, err => {
                 console.error(err);
+                res.status(500);
                 res.send({err, "ok": false});
             });
         })

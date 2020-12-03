@@ -18,6 +18,7 @@ class UsersRouterRout {
                 res.send({data: response['data'], "ok": true});
             }, err => {
                 console.error(err);
+                res.status(500);
                 res.send({err, "ok": false});
             })
         });

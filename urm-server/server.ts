@@ -5,6 +5,7 @@ import AseDB from "./dbOps/AseDb";
 import ConnectionInUseRout from "./routes/ConnectionInUse.rout";
 import RightsTranslationsRout from "./routes/RightsTranslations.rout";
 import UserRightsRout from "./routes/UserRights.rout";
+import AuthenticateRout from "./routes/authenticate.rout";
 
 class Server {
     public usersRouter: UsersRouterRout;

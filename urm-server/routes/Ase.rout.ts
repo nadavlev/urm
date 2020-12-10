@@ -40,7 +40,7 @@ class AseRout {
             let key = req.query.key.toString();
             this.aseDb.deleteConnection(key).then( response => {
                 res.status(200);
-                res.send(response);
+                res.send({data: response});
             }, err => {
                 res.status(500);
                 console.error(err);

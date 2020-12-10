@@ -13,32 +13,6 @@
 //         this.dataBasesDictionary = {};// {[server:port:database]: details}
 //     }
 //
-
-////
-//     getConnections() {
-//         return this.connectionDictionary;
-//     }
-//
-//     setConnectionInUse(user, details) {
-//         return new Promise((resolve, reject) => {
-//             let connectionKey = getConnectionKey(details);
-//             if (this.connectionDictionary[connectionKey]) {
-//                 this.usedConnections[user] = connectionKey;
-//                 try{
-//                     fs.writeFileSync(USED_CONNECTION_FILE, JSON.stringify(this.usedConnections));
-//                     resolve({"data": details, "ok": true});
-//                 } catch(err) {
-//                     reject({"data": {}, "ok": false});
-//                 }
-//             }
-//             else {
-//                 reject({"data": connectionKey, "ok": false});
-//             }
-//         })
-//     }
-//
-//
-
 //
 //     safeDisconnect(user) {
 //         let db = this.connectionDictionary[user].database;
@@ -84,7 +58,10 @@ class AseDB {
 
     deleteConnection(key: string) {
         delete this.connectionDictionary[key];
-        return this.wrightConnectionsToFile(this.connectionDictionary);
+        this.wrightConnectionsToFile(this.connectionDictionary).then(result => {
+           console.log(result);
+        });
+        return Promise.resolve(this.connectionDictionary);
     }
 
     private wrightConnectionsToFile(connections): Promise<object> {
@@ -103,15 +80,20 @@ class AseDB {
 
      testConnection(details) {
         return new Promise((resolve, reject) => {
-            let database = this.createDB(details);
-            database.connect(function(err){
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve({});
-                }
-            });
+            try {
+                let database = this.createDB(details);
+                database.connect(function(err){
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve({});
+                    }
+                });
+            }catch (e) {
+                console.warn(e);
+                reject(e);
+            }
         })
     }
 
@@ -126,10 +108,22 @@ class AseDB {
         }
     }
 
-    setConnectionInUse(user, details) {
-        let key = getConnectionKey(details);
-        this.usedConnections[user] = key;
-        return {key, connection: details};
+    setConnectionInUse(user, details):  Promise<{data: string, "ok": boolean}> {
+        return new Promise((resolve, reject) => {
+            let connectionKey = getConnectionKey(details);
+            if (this.connectionDictionary[connectionKey]) {
+                this.usedConnections[user] = connectionKey;
+                try{
+                    fs.writeFileSync(USED_CONNECTION_FILE, JSON.stringify(this.usedConnections));
+                    resolve({"data": connectionKey, "ok": true});
+                } catch(err) {
+                    reject({"data": {}, "ok": false});
+                }
+            }
+            else {
+                reject({"data": connectionKey, "ok": false});
+            }
+        })
     }
 
     createDB(details) {
@@ -140,32 +134,33 @@ class AseDB {
 
     getUsers(user) {
         const connectionKey = this.usedConnections[user];
-        return this.connectToDb(connectionKey).then(response => {
-            let connectedDb = response;
-            const query = 'select reg_num, user_type, user_mode, is_sso_user ' +
-                'from USERS order by reg_num ';
-            return this.runQuery(query, connectedDb);
-        }, err => {
-            console.log(err);
-        })
+        if (connectionKey) {
+            return this.connectToDb(connectionKey).then(response => {
+                let connectedDb = response;
+                const query = 'select reg_num, user_type, user_mode, is_sso_user ' +
+                    'from USERS order by reg_num ';
+                return this.runQuery(query, connectedDb);
+            }, err => {
+                console.log(err);
+            })
+        }
+        else {
+            return  Promise.reject('Connection was not selected, please verify that you selected a connection in connections page');
+        }
     }
 
     connectToDb(connectionKey) {
         let connectionDetails = this.connectionDictionary[connectionKey];
         let activeConnection = this.activeConnections[connectionKey];
-        if (!activeConnection) {
+        if (!activeConnection || !activeConnection?.connected) {
             this.activeConnections[connectionKey] = this.createDB(connectionDetails);
             return this.makeConnection(this.activeConnections[connectionKey])      ;
         }
         else {
-            if (this.activeConnections[connectionKey].connected) {
-                return Promise.resolve(this.activeConnections[connectionKey]);
-            }
-            else {
-                return this.makeConnection(this.activeConnections[connectionKey]);
-            }
+            return Promise.resolve(activeConnection);
         }
     }
+
 
     makeConnection(db) {
         return new Promise((resolve, reject) => {

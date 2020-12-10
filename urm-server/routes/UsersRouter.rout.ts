@@ -1,5 +1,5 @@
 import express from 'express';
-import {API_USERS, USER_NAME} from "../../shared/api.constants";
+import {API_USERS} from "../../shared/api.constants";
 import AseDB from "../dbOps/AseDb";
 
 class UsersRouterRout {
@@ -14,12 +14,11 @@ class UsersRouterRout {
 
     private initRouts() {
         this.router.get(this.path, (req, res) => {
-            this.aseDb.getUsers(USER_NAME).then(response => {
+            this.aseDb.getUsers(req['loggedInUser']).then(response => {
                 res.send({data: response['data'], "ok": true});
             }, err => {
                 console.error(err);
-                res.status(500);
-                res.send({err, "ok": false});
+                res.status(500).send({err, "ok": false});
             })
         });
     }

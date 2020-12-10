@@ -2,8 +2,6 @@ import express from 'express'
 import {API_CONNECTION_IN_USE} from "../../shared/api.constants";
 import AseDB from "../dbOps/AseDb";
 
-const USER_NAME = 'temp_user_name';
-
 class ConnectionInUseRout {
     public router = express.Router();
     public path = API_CONNECTION_IN_USE
@@ -16,10 +14,15 @@ class ConnectionInUseRout {
 
     private initRouts() {
         this.router.get(this.path, (req, res) => {
-            res.send(this.aseDb.getConnectionInUse(USER_NAME));
+            res.send(this.aseDb.getConnectionInUse(req['loggedInUser']));
         })
         this.router.put(this.path, (req, res) => {
-            res.send(this.aseDb.setConnectionInUse(USER_NAME, req.body));
+            this.aseDb.setConnectionInUse(req['loggedInUser'], req.body).then(response => {
+                res.status(200).send({key: response['data'], connection: req['body'] });
+            }, err => {
+                console.error(err);
+                res.status(500).send({"ok": false});
+            });
         })
     }
 

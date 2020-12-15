@@ -178,9 +178,12 @@ class AseDB {
 
     runQuery(query, db) {
         return new Promise((resolve, reject) => {
-            db.query(query, function (err, data) {
+            db.query(query, (err, data) => {
                 if (err) {
                     reject({err, data});
+                    // if (err.message.search(/JZ0C0/) != -1) { //db disconnected
+                    //
+                    // }
                 }
                 else {
                     resolve({err, data});

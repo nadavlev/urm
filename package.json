@@ -3,8 +3,8 @@
   "version": "0.0.01",
   "private": true,
   "scripts": {
-    "start:dev": "concurrently \"npm:client-debug\" \"npm:tsc-w \" \" nodemon --inspect build/urm-server/server.js \" ",
-    "start": "npm run build && node build/index.js",
+    "start": "concurrently \"npm:client-debug\" \"npm:tsc-w \" \" nodemon --inspect build/urm-server/server.js \" ",
+    "start:prod": "npm run build && node build/index.js",
     "build": "rimraf ./build && tsc",
     "server-debug": "tsc && run-p tsc-w server-reload",
     "client-debug": "npm start --prefix urm-client",

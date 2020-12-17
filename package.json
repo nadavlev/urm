@@ -5,7 +5,7 @@
   "scripts": {
     "start": "concurrently \"npm:client-debug\" \"npm:tsc-w \" \" nodemon --inspect build/urm-server/server.js \" ",
     "start:prod": "npm run build && node build/index.js",
-    "build": "rimraf ./build && tsc",
+    "build": "rimraf ./build && tsc && npm run client-build",
     "server-debug": "tsc && run-p tsc-w server-reload",
     "client-debug": "npm start --prefix urm-client",
     "client-build": "npm run build --prefix urm-client",

@@ -26,7 +26,7 @@
 
 import * as fs from "fs"
 import {ConnectionDetails} from "../../urm-client/src/app/models/connection-details.ase.model";
-import {getConnectionKey} from "../../shared/connection.utils";
+import {getConnectionKeyFromConnectionDetails, getConnectionKeyFromSybaseObject} from "../../shared/connection.utils";
 const Sybase = require('sybase');
 const CONNECTIONS_FILE = 'connections_db.txt';
 const USED_CONNECTION_FILE = 'used_connections_db.txt';
@@ -51,7 +51,7 @@ class AseDB {
     }
 
     saveConnectionDetails(details: ConnectionDetails) {
-        let connectionKey = getConnectionKey(details);
+        let connectionKey = getConnectionKeyFromConnectionDetails(details);
         this.connectionDictionary[connectionKey] = details;
         return this.wrightConnectionsToFile(this.connectionDictionary);
     }
@@ -110,7 +110,7 @@ class AseDB {
 
     setConnectionInUse(user, details):  Promise<{data: string, "ok": boolean}> {
         return new Promise((resolve, reject) => {
-            let connectionKey = getConnectionKey(details);
+            let connectionKey = getConnectionKeyFromConnectionDetails(details);
             if (this.connectionDictionary[connectionKey]) {
                 this.usedConnections[user] = connectionKey;
                 try{
@@ -137,8 +137,27 @@ class AseDB {
         if (connectionKey) {
             return this.connectToDb(connectionKey).then(response => {
                 let connectedDb = response;
-                const query = 'select reg_num, user_type, user_mode, is_sso_user ' +
-                    'from USERS order by reg_num ';
+                // const query = 'select reg_num, user_type, user_mode, is_sso_user ' +
+                //     'from USERS order by reg_num ';
+                const query = `select
+                                u.reg_num,
+                                    u.user_type,
+                                    u.user_mode,
+                                    u.user_level,
+                                    u.version,
+                                    u.is_sso_user,
+                                    us.user_expiration_time,
+                                    us.pswd_expiration_time,
+                                    us.last_login_time,
+                                    us.last_logout_time,
+                                    us.login_fail_count,
+                                    us.last_ip_address,
+                                    cu.user_description,
+                                    cu.system_type
+                                from dbo.USERS as u
+                                INNER JOIN dbo.USER_SECURITY as us on u.reg_num = us.reg_num
+                                INNER JOIN dbo.CONFIG_USERS as cu on u.user_type = cu.user_type and u.user_mode = cu.user_mode and u.user_level = cu.user_level
+                                order by u.reg_num`;
                 return this.runQuery(query, connectedDb);
             }, err => {
                 console.log(err);
@@ -181,14 +200,17 @@ class AseDB {
             db.query(query, (err, data) => {
                 if (err) {
                     reject({err, data});
-                    // if (err.message.search(/JZ0C0/) != -1) { //db disconnected
-                    //
-                    // }
                 }
                 else {
                     resolve({err, data});
                 }
             });
+        }).catch(exception => {
+            if (exception.message.search(/JZ0C0/) != -1) {
+                db.disconnect();
+                let connectionKey = getConnectionKeyFromSybaseObject(db);
+                delete this.activeConnections[connectionKey];
+            }
         });
     }
 

@@ -156,7 +156,7 @@ class AseDB {
                                     cu.system_type
                                 from dbo.USERS as u
                                 INNER JOIN dbo.USER_SECURITY as us on u.reg_num = us.reg_num
-                                INNER JOIN dbo.CONFIG_USERS as cu on u.user_type = cu.user_type and u.user_mode = cu.user_mode and u.user_level = cu.user_level
+                                LEFT JOIN dbo.CONFIG_USERS as cu on u.user_type = cu.user_type and u.user_mode = cu.user_mode and u.user_level = cu.user_level
                                 order by u.reg_num`;
                 return this.runQuery(query, connectedDb);
             }, err => {
@@ -206,7 +206,7 @@ class AseDB {
                 }
             });
         }).catch(exception => {
-            if (exception.message.search(/JZ0C0/) != -1) {
+            if (exception.err.message.search(/JZ0C0/) != -1) {
                 db.disconnect();
                 let connectionKey = getConnectionKeyFromSybaseObject(db);
                 delete this.activeConnections[connectionKey];

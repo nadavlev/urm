@@ -2,7 +2,6 @@ import express from 'express'
 import AseDB from "../dbOps/AseDb";
 import {API_RIGHTS_TRANSLATIONS} from "../../shared/api.constants";
 import fs from 'fs';
-// const parseString = require('xml2js').parseString;
 import xml2js from 'xml2js';
 import * as _ from 'lodash';
 

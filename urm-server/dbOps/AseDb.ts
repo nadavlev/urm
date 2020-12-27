@@ -198,12 +198,7 @@ class AseDB {
     runQuery(query, db) {
         return new Promise((resolve, reject) => {
             db.query(query, (err, data) => {
-                if (err) {
-                    reject({err, data});
-                }
-                else {
-                    resolve({err, data});
-                }
+                resolve({err, data});
             });
         }).catch(exception => {
             if (exception.err.message.search(/JZ0C0/) != -1) {

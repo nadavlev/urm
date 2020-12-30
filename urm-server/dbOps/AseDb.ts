@@ -1,29 +1,3 @@
-
-// const Sybase = require("sybase");
-
-// const fs = require('fs');
-//
-// class AseDb__ {
-//
-//     constructor() {
-//         this.details = {};
-//         let persistedConnections = fs.readFileSync(CONNECTIONS_FILE); //{[server:port:database]: connectedDataBases:{connection, lastUse, isValidated}}
-//         this.connectionDictionary = JSON.parse(persistedConnections);
-//         this.activeConnections = {};
-//         this.dataBasesDictionary = {};// {[server:port:database]: details}
-//     }
-//
-//
-//     safeDisconnect(user) {
-//         let db = this.connectionDictionary[user].database;
-//         if (db.connected) {
-//             db.disconnect();
-//         }
-//         this.connectionDictionary[user].database = undefined;
-//     }
-// }
-//
-
 import * as fs from "fs"
 import {ConnectionDetails} from "../../urm-client/src/app/models/connection-details.ase.model";
 import {getConnectionKeyFromConnectionDetails, getConnectionKeyFromSybaseObject} from "../../shared/connection.utils";
@@ -31,15 +5,15 @@ const Sybase = require('sybase');
 const CONNECTIONS_FILE = 'connections_db.txt';
 const USED_CONNECTION_FILE = 'used_connections_db.txt';
 const PATH_TO_JAR = 'node_modules/sybase/JavaSybaseLink/dist/JavaSybaseLink.jar';
+import * as _ from 'lodash';
 
 class AseDB {
     private connectionDictionary: object = {};
     private usedConnections: object = {};
     private activeConnections = {};
-    private dataBasesDictionary = {};// {[server:port:database]: details}
 
     constructor() {
-        let persistedConnections = fs.readFileSync(CONNECTIONS_FILE); //{[server:port:database]: connectedDataBases:{connection, lastUse, isValidated}}
+        let persistedConnections = fs.readFileSync(CONNECTIONS_FILE);
         this.connectionDictionary = JSON.parse(persistedConnections.toString());
         let persistedUsedConnections = fs.readFileSync(USED_CONNECTION_FILE);
         this.usedConnections = JSON.parse(persistedUsedConnections.toString());
@@ -137,8 +111,6 @@ class AseDB {
         if (connectionKey) {
             return this.connectToDb(connectionKey).then(response => {
                 let connectedDb = response;
-                // const query = 'select reg_num, user_type, user_mode, is_sso_user ' +
-                //     'from USERS order by reg_num ';
                 const query = `select
                                 u.reg_num,
                                     u.user_type,
@@ -198,6 +170,12 @@ class AseDB {
     runQuery(query, db) {
         return new Promise((resolve, reject) => {
             db.query(query, (err, data) => {
+                console.log(err);
+                if (err && _.isString(err) && err.search(/JZ0C0/) != -1) {
+                    db.disconnect();
+                    let connectionKey = getConnectionKeyFromSybaseObject(db);
+                    delete this.activeConnections[connectionKey];
+                }
                 resolve({err, data});
             });
         }).catch(exception => {
@@ -240,7 +218,6 @@ class AseDB {
                         let p = this.runQuery(query, connectedDb);
                         promiseArray.push(p);
                 }
-                // this.safeDisconnect();
                 return Promise.all(promiseArray);
             });
         }

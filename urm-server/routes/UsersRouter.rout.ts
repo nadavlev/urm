@@ -13,13 +13,14 @@ class UsersRouterRout {
     }
 
     private initRouts() {
-        this.router.get(this.path, (req, res) => {
+        this.router.get(this.path, (req, res, next) => {
             this.aseDb.getUsers(req['loggedInUser']).then(response => {
                 res.send({data: response['data'], "ok": true});
             }, err => {
                 console.error(err);
-                res.status(500).send({err, "ok": false});
-            })
+                next(err);
+                //res.status(500).send({err, "ok": false});
+            }).catch(next);
         });
     }
 

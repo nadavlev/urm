@@ -33,10 +33,15 @@ class App {
         this.app.use(bodyParser.json());
         this.app.use(cookieParser());
         this.app.use(express.static('./build/public'));
+        this.app.use(this.refreshHandler());
 
     }
 
-
+    private refreshHandler(): (req, res, next) => void {
+        return ((req, res, next) => {
+            res.status(200).sendFile('build/public/index.html', {root: './'});
+        })
+    }
 
     private initRouters() {
         this.routesLoader = new RoutesLoader(this.app);

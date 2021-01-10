@@ -1,4 +1,3 @@
-export const SERVER_ADDRESS = 'http://localhost:5000';
 export const API_TEST_CONNECTION = '/api/ase/testConnection';
 export const API_CONNECTION = "/api/ase/connection";
 export const API_CONNECTION_IN_USE = "/api/ase/connectionInUse"

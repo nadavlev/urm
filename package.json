@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "start": "concurrently \"npm:client-debug\" \"npm:tsc-w \" \" nodemon --inspect build/urm-server/app.js \" ",
-    "start:prod": "npm run build && node build/urm-server/app.js",
+    "start:prod": "node build/urm-server/app.js",
     "build": "rimraf ./build && tsc && npm run client-build",
-    "server-debug": "tsc && run-p tsc-w server-reload",
+    "server-debug": "nodemon --inspect build/urm-server/app.js",
     "client-debug": "npm start --prefix urm-client",
     "client-build": "npm run build --prefix urm-client",
+    "test-the-build": "concurrently \"tsc_w && client-build\" \"npm:server-debug \" ",
     "tsc-w": "tsc -w"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "morgan": "~1.9.1",
+    "sybase": "^1.2.3",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

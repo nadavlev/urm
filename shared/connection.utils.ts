@@ -1,4 +1,4 @@
-import {ConnectionDetails} from "../urm-client/src/app/models/connection-details.ase.model";
+import {ConnectionDetails} from "./connection-details.ase.model";
 
 const KEY_CONNECTOR = '-';
 

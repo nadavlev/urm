@@ -14,25 +14,27 @@ class UserRightsRout {
     }
 
     initRouts() {
-        this.router.get(this.path, (req, res) => {
+        this.router.get(this.path, (req, res, next) => {
             let selectedUser = req.query.selectedUser.toString()
             this.aseDb.getUserRights(req['loggedInUser'], selectedUser).then(data => {
                 res.send(data);
             }, err => {
                 console.error(err);
-                res.status(500);
-                res.send({err, "ok": false});
-            });
+                next(err);
+                // res.status(500);
+                // res.send({err, "ok": false});
+            }).catch(next);
         });
-        this.router.post(this.path, (req, res) => {
+        this.router.post(this.path, (req, res, next) => {
             let details = req.body.rightsData;
             this.aseDb.setUserRights(req['loggedInUser'], details).then(data => {
                 res.send({data, "ok": true});
             }, err => {
                 console.error(err);
-                res.status(500);
-                res.send({err, "ok": false});
-            });
+                next(err);
+                // res.status(500);
+                // res.send({err, "ok": false});
+            }).catch(next);
         })
     }
 }

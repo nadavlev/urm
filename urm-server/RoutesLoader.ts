@@ -69,7 +69,6 @@ class RoutesLoader {
 
         }
     }
-
 }
 
 export default RoutesLoader;

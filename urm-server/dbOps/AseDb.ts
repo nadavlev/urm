@@ -1,11 +1,12 @@
 import * as fs from "fs"
-import {ConnectionDetails} from "../../urm-client/src/app/models/connection-details.ase.model";
+import {ConnectionDetails} from "../../shared/connection-details.ase.model";
 import {getConnectionKeyFromConnectionDetails, getConnectionKeyFromSybaseObject} from "../../shared/connection.utils";
 const Sybase = require('sybase');
 const CONNECTIONS_FILE = 'connections_db.txt';
 const USED_CONNECTION_FILE = 'used_connections_db.txt';
 const PATH_TO_JAR = 'node_modules/sybase/JavaSybaseLink/dist/JavaSybaseLink.jar';
 import * as _ from 'lodash';
+import {AseRights} from "../../shared/models/rights.model";
 
 class AseDB {
     private connectionDictionary: object = {};
@@ -145,7 +146,7 @@ class AseDB {
         let activeConnection = this.activeConnections[connectionKey];
         if (!activeConnection || !activeConnection?.connected) {
             this.activeConnections[connectionKey] = this.createDB(connectionDetails);
-            return this.makeConnection(this.activeConnections[connectionKey])      ;
+            return this.makeConnection(this.activeConnections[connectionKey]);
         }
         else {
             return Promise.resolve(activeConnection);
@@ -155,14 +156,18 @@ class AseDB {
 
     makeConnection(db) {
         return new Promise((resolve, reject) => {
-            db.connect(err => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(db);
-                }
-            });
+            try {
+                db.connect(err => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(db);
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+            }
         })
     }
 
@@ -196,7 +201,7 @@ class AseDB {
         });
     }
 
-    async setUserRights(user, details) {
+    async setUserRights(user: string, details: AseRights[]) {
         const connectionKey = this.usedConnections[user];
         const promiseArray = [];
         if (details) {

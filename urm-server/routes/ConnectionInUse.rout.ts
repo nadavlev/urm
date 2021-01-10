@@ -16,13 +16,14 @@ class ConnectionInUseRout {
         this.router.get(this.path, (req, res) => {
             res.send(this.aseDb.getConnectionInUse(req['loggedInUser']));
         })
-        this.router.put(this.path, (req, res) => {
+        this.router.put(this.path, (req, res, next) => {
             this.aseDb.setConnectionInUse(req['loggedInUser'], req.body).then(response => {
                 res.status(200).send({key: response['data'], connection: req['body'] });
             }, err => {
-                console.error(err);
-                res.status(500).send({"ok": false});
-            });
+                next(err);
+                // console.error(err);
+                // res.status(500).send({"ok": false});
+            }).catch(next);
         })
     }
 

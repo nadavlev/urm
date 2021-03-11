@@ -1,11 +1,11 @@
 import express from 'express'
-import {API_CONNECTION} from "../../shared/api.constants";
+import {EMPTY_PATH} from "../../shared/api.constants";
 import AseDB from "../dbOps/AseDb";
 
 class AseRout {
     private aseDb:AseDB;
     public router = express.Router();
-    public path: string = API_CONNECTION //  "/api/ase/connection"
+    private path: string = EMPTY_PATH;
 
     constructor(aseDb: AseDB) {
         this.aseDb = aseDb;
@@ -13,7 +13,7 @@ class AseRout {
     }
 
     private initRouts() {
-        this.router.get(this.path, (req, res) => {
+        this.router.get( this.path, (req, res) => {
             res.status(200);
             res.send({"data": this.aseDb.getConnections(), "ok": true});
         })

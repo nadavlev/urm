@@ -2,11 +2,6 @@ import express from 'express';
 import * as bodyParser from 'body-parser';
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
-import AuthenticateRout from "./routes/Authenticate.rout";
-import * as jwt from 'jsonwebtoken';
-import {AUTH_COOKIE_TOKEN_NAME, DEFAULT_SECONDS_IN_SESSION, EXPIRATION_KEY} from "../shared/api.constants";
-import {generateAuthToken, JWT_SECRET} from "./constants";
-import moment from 'moment';
 import RoutesLoader from "./RoutesLoader";
 
 class App {
@@ -33,14 +28,6 @@ class App {
         this.app.use(bodyParser.json());
         this.app.use(cookieParser());
         this.app.use(express.static('./build/public'));
-        this.app.use(this.refreshHandler());
-
-    }
-
-    private refreshHandler(): (req, res, next) => void {
-        return ((req, res, next) => {
-            res.status(200).sendFile('build/public/index.html', {root: './'});
-        })
     }
 
     private initRouters() {

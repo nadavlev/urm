@@ -1,10 +1,10 @@
 import express from 'express';
-import {API_USERS} from "../../shared/api.constants";
+import {EMPTY_PATH} from "../../shared/api.constants";
 import AseDB from "../dbOps/AseDb";
 
 class UsersRouterRout {
     public router = express.Router();
-    private path: string = API_USERS;
+    private path: string = EMPTY_PATH;
     private aseDb: AseDB;
 
     constructor(aseDb: AseDB) {

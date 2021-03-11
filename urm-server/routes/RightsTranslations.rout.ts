@@ -1,6 +1,6 @@
 import express from 'express'
 import AseDB from "../dbOps/AseDb";
-import {API_RIGHTS_TRANSLATIONS} from "../../shared/api.constants";
+import {EMPTY_PATH} from "../../shared/api.constants";
 import fs from 'fs';
 import xml2js from 'xml2js';
 import * as _ from 'lodash';
@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 class RightsTranslationsRout {
     aseDb: AseDB;
     public router: express.Router = express.Router();
-    public path: string = API_RIGHTS_TRANSLATIONS;
+    public path: string = EMPTY_PATH;
     rightsTranslationsArray = [];
     parseString = xml2js.parseString;
 

@@ -2,7 +2,7 @@ import express from 'express';
 import {
     API_AUTHENTICATE,
     AUTH_COOKIE_TOKEN_NAME,
-    DEFAULT_SECONDS_IN_SESSION,
+    DEFAULT_SECONDS_IN_SESSION, EMPTY_PATH,
     EXPIRATION_KEY
 } from "../../shared/api.constants";
 import {generateAuthToken} from "../constants";
@@ -13,7 +13,7 @@ const MASTER_PASSWORD = 'urm123';
 
 class AuthenticateRout {
     public router = express.Router();
-    private path: string = API_AUTHENTICATE;
+    private path: string = EMPTY_PATH;
 
     constructor() {
         this.initRouts();

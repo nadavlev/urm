@@ -1,11 +1,11 @@
 import express from 'express';
-import {API_USER_RIGHTS} from "../../shared/api.constants";
+import {EMPTY_PATH} from "../../shared/api.constants";
 import AseDb from '../dbOps/AseDb';
-import AseDB from "../dbOps/AseDb";
+import AseDB from '../dbOps/AseDb';
 
 class UserRightsRout {
     public router: express.Router = express.Router();
-    public path = API_USER_RIGHTS;
+    private path = EMPTY_PATH;
     private aseDb: AseDb;
 
     constructor(aseDb: AseDB) {

@@ -8,7 +8,7 @@
     "build": "rimraf ./build && tsc && npm run client-build",
     "server-debug": "nodemon --inspect build/urm-server/app.js",
     "client-debug": "npm start --prefix urm-client",
-    "client-build": "npm run build --prefix urm-client",
+    "client-build": "npm run build:prod --prefix urm-client",
     "test-the-build": "concurrently \"tsc_w && client-build\" \"npm:server-debug \" ",
     "tsc-w": "tsc -w"
   },

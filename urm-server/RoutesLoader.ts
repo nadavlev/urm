@@ -5,7 +5,12 @@ import RightsTranslationsRout from "./routes/RightsTranslations.rout";
 import UserRightsRout from "./routes/UserRights.rout";
 import AseDB from "./dbOps/AseDb";
 import express from "express";
-import {AUTH_COOKIE_TOKEN_NAME, DEFAULT_SECONDS_IN_SESSION, EXPIRATION_KEY} from "../shared/api.constants";
+import {
+    API_AUTHENTICATE, API_CONNECTION, API_CONNECTION_IN_USE, API_RIGHTS_TRANSLATIONS, API_USER_RIGHTS, API_USERS,
+    AUTH_COOKIE_TOKEN_NAME,
+    DEFAULT_SECONDS_IN_SESSION,
+    EXPIRATION_KEY
+} from "../shared/api.constants";
 import moment from "moment";
 import * as jwt from "jsonwebtoken";
 import {generateAuthToken, JWT_SECRET} from "./constants";
@@ -33,12 +38,15 @@ class RoutesLoader {
     }
 
     public load() {
-        this.app.use(this.authenticate.router);
-        this.app.use(this.rightsTranslations.router);
-        this.app.use(this.authMiddleware(), this.usersRouter.router);
-        this.app.use(this.authMiddleware(), this.aseRouter.router);
-        this.app.use(this.authMiddleware(), this.connectionInUse.router);
-        this.app.use(this.authMiddleware(), this.userRights.router);
+        this.app.use(API_AUTHENTICATE, this.authenticate.router);
+        this.app.use(API_RIGHTS_TRANSLATIONS, this.rightsTranslations.router);
+        this.app.use(API_USERS, this.authMiddleware(), this.usersRouter.router);
+        this.app.use(API_CONNECTION, this.authMiddleware(), this.aseRouter.router);
+        this.app.use(API_CONNECTION_IN_USE, this.authMiddleware(), this.connectionInUse.router);
+        this.app.use(API_USER_RIGHTS, this.authMiddleware(), this.userRights.router);
+        this.app.use('/*', (req, res, next) => {
+            res.status(200).sendFile('build/public/index.html', {root: './'});
+        })
     }
 
     private authMiddleware(): (req, res, next) => void {
